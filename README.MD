@@ -383,10 +383,186 @@
 
 #### 테스트 예제 개발
 
-- 메인은  ```var``` 전역 변수로 선언하며, 익명 함수를 담고 있음
-- 초기 sdk loader에서 빠른 호출을 위한 캐싱
-- window 전역 객체에 메인 변수가 있으면 호출
-- 예시
+- 토스페이먼츠 JavaScript SDK를 참고하여 개발을 진행
+- 주 기능이 담긴 JS 파일은 URL로 제공되고 있으며, URL 접속하여 코드 확인 시에 JS 코드가 난독화되어 있기 때문에 임의로 주 기능 JS 파일을 생성
+
+- 초기 sdk 로딩 시, 빠른 호출을 위한 캐싱 작업
+- window 전역 객체에 주 기능 초기화 함수 호출&middot;생성
+
+##### 프로젝트 구조
+
+- index.html
+
+  : 메인 페이지로서 script tag에 붙은 속성 값 및 webcashSDK로 호출한 메서드의 값을 콘솔에서 확인 가능
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>script-attr</title>
+  </head>
+  <body>
+    <!-- script 속성 값 가져오기 테스트 -->
+    <script src="./js/index.js" data-client-id="u86j4ripEt8LRfPGzQ8" data-mode="production"
+      data-merchant-user-key="가맹점 사용자 식별키" data-merchant-pay-key="가맹점 주문 번호" data-product-name="상품명을 입력하세요"
+      data-total-pay-amount="1000" data-tax-scope-amount="1000" data-tax-ex-scope-amount="0"
+      data-return-url="사용자 결제 완료 후 결제 결과를 받을 URL" crossorigin="anonymous">
+    </script>
+    <!-- sdk 테스트 -->
+    <script src="./js/callSdk.js" type="module" crossorigin="anonymous"></script>
+  </body>
+  </html>
+  ```
+
+  
+
+- js/callSdk.js
+
+  : sdk 호출 함수이며, loader.js 파일을 import함
+
+  ```javascript
+  import { loadSDK } from "./loader.js"; // loader 추가
+  
+  (async () => {
+      // 서비스와 클라이언트키를 전달하여 window 객체 내 TestSdkVal 생성
+      const webcashSDK = await loadSDK('TestSdkVal', 'c6gBE6HrFVCNdmyl93bT3JTKhjzREs2J');
+      await webcashSDK.increase(); // 증가 메서드 호출
+      console.group('webcashSDK test')
+      console.log('num:', webcashSDK.getValue());
+      await webcashSDK.decrease(); // 감소 메서드 호출
+      console.log('num:', webcashSDK.getValue()); 
+      console.log('client key:', webcashSDK.getClientKey()); // 파라미터로 보낸 클라이언트 키 값
+      console.groupEnd();
+  })();
+  ```
+
+  
+
+- js/loader.js
+
+  : 특정 서비스와 클라이언트 키를 파라미터로 받는 함수가 있으며, 이 함수는 sdk loader를 실행하고 정상적인 경우 서비스를 실행
+
+  ```javascript
+  import { loadScript } from './sdkLoader.js'; // sdk import
+  const SCRIPT_URL = './js/test.js'; // 주 기능 초기화 함수 파일 URL
+  
+  export function loadSDK(service, clientKey) {
+    // window 전역 객체 undefined 경우
+    if (typeof window === 'undefined') {
+      return Promise.resolve({});
+    }
+    console.log('initialize loader');
+    // window 전역 객체 내 초기화 함수 생성하고 return 받은 메서드를 다시 return
+    return loadScript(SCRIPT_URL, service, clientKey).then((TestSdkVal) => {
+      console.log('done');
+      return TestSdkVal;
+    }).catch(err => console.log('it doesn\'t work', err));
+  };
+  ```
+
+  
+
+- js/sdkLoader.js
+
+  : sdk 로더
+
+  ```javascript
+  let cachedPromise = null; // 캐싱 변수
+  
+  // 기능 src path, 기능명, 클라이언트 키
+  export function loadScript(src, namespace, clientKey) {
+    const existingElement = document.querySelector(`[src="${src}"]`);
+    // 이미 script module이 dom에 있으면서 캐싱 변수에 값이 있는 경우
+    if (existingElement !== null && cachedPromise !== undefined) {
+      return cachedPromise;
+    }
+    // 이미 script module이 dom에 있으면서, window 전역 객체에도 생성 함수가 있는 경우
+    if (existingElement !== null && getName(namespace) !== undefined) {
+      return Promise.resolve(!getName(namespace));
+    }
+  
+    // script 생성
+    const script = document.createElement("script");
+    script.src = src;
+    // 파라미터로 받은 클라이언트 키 값을 속성으로 추가
+    script.setAttribute('data-client-key', clientKey);
+  
+    // promise 변수
+    cachedPromise = new Promise((resolve, reject) => {
+      document.head.appendChild(script); // head 태그 내 삽입
+  
+      // 초기화 함수에서 생성한 이벤트에 대한 리스너 추가
+      window.addEventListener("TestSdkVal:initialize", async () => {
+        await getName(namespace);
+        if(getName(namespace) !== undefined){
+          // window 전역 객체에 초기화 함수가 있는 경우, resolve
+          resolve(getName(namespace));
+        } else {
+          // 없는 경우 error로 reject
+          reject(new Error("Test SDK 로드 실패"));
+        }
+      });
+    });
+    // promise 값 반환
+    return cachedPromise;
+  };
+  
+  // window 전역 객체 내 name 요소 여부 return
+  function getName(name) {
+    return window[name];
+  };
+  ```
+
+  
+
+- js/test.js
+
+  : 주 기능 초기화 함수
+
+  ```javascript
+  // 전역 스페이스
+  var TestSdkVal = (function () {
+    "use strict"; // 엄격 모드
+    console.log("run test sdk val");
+  
+    // 초기화 함수 등록 여부 확인을 위한 이벤트 생성
+    const testEvent = new Event("TestSdkVal:initialize", {
+      bubbles: true,
+      cancelable: false,
+    });
+    // dom에 이벤트 추가
+    document.dispatchEvent(testEvent);
+    console.log("TestSdkVal 호출됨");
+    let num = 0;
+    const key = "c6gBE6HrFVCNdmyl93bT3JTKhjzREs2J";
+    const clientKeyAttr = document.head.querySelector("script"); // head에 있는 script module
+    const clientKey = clientKeyAttr.attributes[1].nodeValue; // script 속성 값 가져오기
+    // 기본 키 값과 파라미터로 받은 키가 같은 경우
+    if (key === clientKey) {
+      return Promise.resolve({
+        getClientKey: () => clientKey,
+        getEventType: () => testEvent.type,
+        increase: () => {
+          num += 1;
+        },
+        decrease: () => {
+          num -= 1;
+        },
+        getValue: () => num,
+      });
+    } 
+    // 기본 키 값과 파라미터로 받은 키가 틀린 경우
+    else {
+      return Promise.reject({
+        에러: new Error("잘못된 클라이언트 키 값"),
+      });
+    }
+  })();
+  ```
+
+  
 
 <br/>
 
