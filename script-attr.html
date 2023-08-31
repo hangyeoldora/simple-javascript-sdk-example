@@ -2,23 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>script-attr</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>script-attr</title>
+
 </head>
 
 <body>
-    <script src="./js/index.js" type="module"
-        data-client-id="u86j4ripEt8LRfPGzQ8"
-        data-mode="production"
-        data-merchant-user-key="가맹점 사용자 식별키"
-        data-merchant-pay-key="가맹점 주문 번호"
-        data-product-name="상품명을 입력하세요"
-        data-total-pay-amount="1000"
-        data-tax-scope-amount="1000"
-        data-tax-ex-scope-amount="0"
-        data-return-url="사용자 결제 완료 후 결제 결과를 받을 URL">
-    </script>
+  <script src="./js/index.js" data-client-id="u86j4ripEt8LRfPGzQ8" data-mode="production"
+    data-merchant-user-key="가맹점 사용자 식별키" data-merchant-pay-key="가맹점 주문 번호" data-product-name="상품명을 입력하세요"
+    data-total-pay-amount="1000" data-tax-scope-amount="1000" data-tax-ex-scope-amount="0"
+    data-return-url="사용자 결제 완료 후 결제 결과를 받을 URL" crossorigin="anonymous">
+  </script>
+  <script src="./js/callSdk.js" type="module" crossorigin="anonymous"></script>
 </body>
 
 </html>
