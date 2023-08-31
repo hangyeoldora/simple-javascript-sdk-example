@@ -60,7 +60,7 @@
 - 프로그램의 효율적인 관리와 코드의 재사용성을 높임
 - 각 모듈의 독립성을 통해 의존성을 낮춰 특정 모듈의 기능 추가나 수정할 때도 편리 (유지보수성 향상)
 - 모듈은 각각의 독립적인 스코프로 인식되기 때문에 자바스크립트의 네임스페이스 오염에 대한 문제를 줄일 수 있음
-- 자유롭게 필요한 곳에서 import하고 export 할 수 있음
+- 자유롭게 필요한 곳에서 import, export 할 수 있음
 
 ##### 모듈 시스템
 
@@ -266,9 +266,11 @@
       for(let ele of attrList) {
           ele.nodeName === 'data-client-id' && console.log('ok') // 특정 attr 분기
       };
+      
       // 2. 펼침연산자 사용 (동일한 기능의 Array.from()도 가능)
       [...attrList].forEach(ele => console.log(`${ele.nodeName}: ${ele.nodeValue}`));
       Array.from(attrList).forEach(ele => console.log(`${ele.nodeName}: ${ele.nodeValue}`));
+      
   })();
   ```
 
@@ -323,7 +325,9 @@
 
        ```javascript
        const clientKeyAttr = document.head.querySelector('script');
-       const clientKey = clientKeyAttr.attributes[1].nodeValue; // NamedNodeMap에서 'data-client-key'라는 속성의 value 값
+       
+       // NamedNodeMap에서 'data-client-key'라는 속성의 value 값
+       const clientKey = clientKeyAttr.attributes[1].nodeValue;
        ```
 
 <br/>
