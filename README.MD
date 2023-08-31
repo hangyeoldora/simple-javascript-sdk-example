@@ -565,7 +565,7 @@
   : 주 기능 초기화 함수
 
   ```javascript
-  // 전역 스페이스
+  // 스코프 문제로 let, const 대신 var 사용 (함수 스코프)
   var TestSdkVal = (function () {
     "use strict"; // 엄격 모드
     console.log("run test sdk val");
