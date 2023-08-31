@@ -9,7 +9,6 @@ export function loadSDK(service, clientKey) {
   console.log('initialize loader')
   return loadScript(SCRIPT_URL, service, clientKey).then((TestSdkVal) => {
     console.log('done');
-    console.log(TestSdkVal)
-    return window.TestSdkVal;
+    return TestSdkVal;
   }).catch(err => console.log('it doesn\'t work', err));
 };
