@@ -371,6 +371,46 @@
 
      - 초기 설정에 prettier와 eslint 규칙을 추가하여 보다 엄격한 코드 규칙을 가질 수 있음
 
+     - 정해놓은 규칙에 맞게 자동으로 정렬해서 가독성을 높이고 코드 스타일을 통일할 수 있는 플러그인 (prettier)
+
+     - 화살표 함수 가능 여부, 문자열 작은 따옴표 사용 등 규칙 적용 가능 (eslint <a href="https://eslint.org/docs/latest/use/getting-started">공식문서</a>)
+
+       ```json
+       // 코드 규칙 예시
+       "rules": {
+           "no-console": "warn",
+           "no-plusplus": "off",
+           "no-shadow": "off",
+           "vars-on-top": "off",
+           "no-underscore-dangle": "off", // var _foo;
+           "comma-dangle": "off",
+           "func-names": "off", // setTimeout(function () {}, 0);
+           "prefer-template": "off",
+           "no-nested-ternary": "off",
+           "max-classes-per-file": "off",
+           "consistent-return": "off",
+           "no-restricted-syntax": ["off", "ForOfStatement"], // disallow specified syntax(ex. WithStatement)
+           "prefer-arrow-callback": "error", // Require using arrow functions for callbacks
+           "require-await": "error",
+           "arrow-parens": ["error", "as-needed"], // a => {}
+           "no-param-reassign": ["error", { "props": false }],
+           "no-unused-expressions": ["error", {
+             "allowTernary": true,      // a || b
+             "allowShortCircuit": true, // a ? b : 0
+             "allowTaggedTemplates": true
+           }],
+           "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+           "max-len": ["error", {
+             "code": 120,
+             "ignoreComments": true,
+             "ignoreStrings": true,
+             "ignoreTemplateLiterals": true
+           }]
+         }
+       ```
+
+       
+
      <br/>
 
   3. ###### airbnb의 javascript 한글 가이드 참조
