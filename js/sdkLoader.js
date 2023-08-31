@@ -1,6 +1,6 @@
 let cachedPromise = null;
 
-export function loadScript(src, namespace) {
+export function loadScript(src, namespace, clientKey) {
   const existingElement = document.querySelector(`[src="${src}"]`);
   if (existingElement !== null && cachedPromise !== undefined) {
     return cachedPromise;
@@ -11,21 +11,23 @@ export function loadScript(src, namespace) {
 
   const script = document.createElement("script");
   script.src = src;
+  script.setAttribute('data-client-key', clientKey);
+
   cachedPromise = new Promise((resolve, reject) => {
     document.head.appendChild(script);
 
-    window.addEventListener("TestSdkVal:initialize", () => {
-      if(getName(namespace) === undefined){
-        resolve(getName(namespace))
+    window.addEventListener("TestSdkVal:initialize", async () => {
+      await getName(namespace);
+      if(getName(namespace) !== undefined){
+        resolve(getName(namespace));
       } else {
-        reject(new Error("Failed to load Test SDK"));
+        reject(new Error("Test SDK 로드 실패"));
       }
     });
   });
-  console.log(cachedPromise)
   return cachedPromise;
-}
+};
 
 function getName(name) {
   return window[name];
-}
+};
